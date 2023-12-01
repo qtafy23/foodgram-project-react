@@ -1,11 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
     AllowAny,
 )
 from rest_framework.response import Response
@@ -79,7 +78,9 @@ class UserViewSet(CreateListRetrieveViewSet):
             )
         user.set_password(new_password)
         user.save()
-        return Response('Пароль успешно изменен', status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Пароль успешно изменен', status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         methods=('get',),

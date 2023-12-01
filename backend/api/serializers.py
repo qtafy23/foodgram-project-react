@@ -1,19 +1,13 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
-from drf_extra_fields.fields import Base64ImageField
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 
-from recipes.models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    FavoriteList,
-    ShoppingList
-)
-from users.models import User, Subscribe
+from recipes.models import (FavoriteList, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingList, Tag)
+from users.models import Subscribe, User
 
 
 class UserReadSerializer(UserSerializer):
@@ -162,7 +156,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для получения рецепта."""
     author = UserReadSerializer(read_only=True)
     tags = TagSerializer(many=True)
-    ingredients = RecipeIngredientSerializer(many=True, source='recipeingredient_set')
+    ingredients = RecipeIngredientSerializer(
+        many=True, source='recipeingredient_set'
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
@@ -277,11 +273,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         return (
-                self.context.get('request').user.is_authenticated
-                and Subscribe.objects.filter(
-                    user=self.context['request'].user,
-                    author=obj
-                ).exists()
+            self.context.get('request').user.is_authenticated
+            and Subscribe.objects.filter(
+                user=self.context['request'].user,
+                author=obj
+            ).exists()
         )
 
     def get_recipes(self, obj):

@@ -4,7 +4,6 @@ from pathlib import Path
 import environ
 from dotenv import load_dotenv
 
-
 env = environ.Env()
 load_dotenv()
 
