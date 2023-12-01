@@ -113,40 +113,12 @@ jobs:
           push: true
           tags: qtafy/foodgram_nginx:latest
 
-  deploy:
+  send_message:
     runs-on: ubuntu-latest
     needs:
       - build_and_push_to_docker_hub
       - build_frontend_and_push_to_docker_hub
       - build_nginx_and_push_to_docker_hub
-    if:
-      contains('
-        refs/heads/master
-        refs/heads/main
-      ', github.ref)
-
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
-
-    - name: Executing remote ssh commands to deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
-          cd foodgram
-          sudo docker compose -f docker-compose.production.yml pull
-          sudo docker compose -f docker-compose.production.yml down
-          sudo docker compose -f docker-compose.production.yml up -d
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
-
-  send_message:
-    runs-on: ubuntu-latest
-    needs: deploy
 
     steps:
     - name: Send message
@@ -154,4 +126,4 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: Деплой успешно выполнен!
+        message: Обновление образов успешно выполнено!
