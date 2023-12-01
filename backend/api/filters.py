@@ -4,14 +4,6 @@ from django_filters.rest_framework import FilterSet, filters
 from recipes.models import Ingredient, Recipe, Tag
 
 
-class IngredientFilter(SearchFilter):
-    search_param = 'name'
-
-    class Meta:
-        model = Ingredient
-        fields = ('name',)
-
-
 class RecipeFilter(FilterSet):
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
@@ -41,3 +33,11 @@ class RecipeFilter(FilterSet):
         if value and user.is_authenticated:
             return queryset.filter(shoppings__user=user)
         return queryset
+
+
+class IngredientFilter(FilterSet):
+    name = filters.CharFilter(field_name="name", lookup_expr='icontains')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name', )

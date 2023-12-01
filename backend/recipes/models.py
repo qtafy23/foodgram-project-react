@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 
 from users.models import User
 
@@ -14,7 +14,13 @@ class Tag(models.Model):
     color = models.CharField(
         "Цвет",
         max_length=7,
-        default='#ffffff',
+        null=True,
+        validators=[
+            RegexValidator(
+                '^#([a-fA-F0-9]{6})',
+                message='Поле должно содержать HEX-код выбранного цвета.'
+            )
+        ],
     )
     slug = models.SlugField(
         "Слаг",

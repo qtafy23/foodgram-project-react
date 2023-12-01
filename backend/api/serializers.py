@@ -260,11 +260,20 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     """Просмотр списка подписок пользователя."""
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
+    recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
 
     def get_is_subscribed(self, obj):
         return (
@@ -286,22 +295,18 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return RecipeListSerializer(recipes, many=True,
                                     context=context).data
 
+    @staticmethod
+    def get_recipes_count(obj):
+        return obj.recipes.count()
+
 
 class SubscribeSerializer(serializers.Serializer):
     """Добавление и удаление подписок пользователя."""
 
-    def validate(self, data):
-        user = self.context.get('request').user
-        author = User.objects.get(pk=data['id'])
-        if user == author:
-            raise serializers.ValidationError(
-                'Вы не можете подписаться на себя'
-            )
-        if Subscribe.objects.filter(user=user, author=author).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписаны на этого пользователя'
-            )
-        return data
+    def validate(self, obj):
+        if self.context['request'].user == obj:
+            raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
+        return obj
 
     def create(self, validated_data):
         user = self.context.get('request').user

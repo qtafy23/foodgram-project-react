@@ -1,11 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,
-                                        AllowAny)
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+    AllowAny,
+)
 from rest_framework.response import Response
 
 from recipes.models import (
@@ -24,15 +26,17 @@ from .serializers import (
     SetPasswordSerializer, SubscriptionSerializer,
     SubscribeSerializer
 )
-from .filters import IngredientFilter, RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from .paginations import LimitPageNumberPaginator, CustomPaginator
 from .utils import create_shoping_list
 from .mixins import CreateListRetrieveViewSet
+from .permissions import IsAuthorOrReadOnly
 
 
 class UserViewSet(CreateListRetrieveViewSet):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
+    pagination_class = CustomPaginator
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -44,19 +48,19 @@ class UserViewSet(CreateListRetrieveViewSet):
         return UserCreateSerializer
 
     @action(
-        methods=('get',),
         detail=False,
+        methods=('get',),
         permission_classes=(IsAuthenticated,),
     )
     def me(self, request):
         """Информация о своем аккаунте."""
 
-        serializer = self.get_serializer(request.user)
+        serializer = UserReadSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
-        methods=('post',),
         detail=False,
+        methods=('post',),
         serializer_class=SetPasswordSerializer,
         permission_classes=(IsAuthenticated,),
     )
@@ -75,7 +79,7 @@ class UserViewSet(CreateListRetrieveViewSet):
             )
         user.set_password(new_password)
         user.save()
-        return Response('Пароль успешно изменен', status=status.HTTP_200_OK)
+        return Response('Пароль успешно изменен', status=status.HTTP_204_NO_CONTENT)
 
     @action(
         methods=('get',),
@@ -97,50 +101,50 @@ class UserViewSet(CreateListRetrieveViewSet):
                                            many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True,
-            methods=('post', 'delete'),
-            serializer_class=SubscribeSerializer,
-            permission_classes=(IsAuthenticated,),
-            )
+    @action(
+        detail=True,
+        methods=('post', 'delete'),
+        serializer_class=SubscribeSerializer,
+        permission_classes=(IsAuthenticated,),
+    )
     def subscribe(self, request, pk=None):
         """Добавление и удаление подписок пользователя."""
         user = request.user
         author = get_object_or_404(User, pk=pk)
 
         if request.method == 'POST':
-            serializer = SubscriptionSerializer(
+            serializer = SubscribeSerializer(
                 author, data=request.data, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
-            Subscribe.objects.create(username=user, author=author)
+            Subscribe.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
             get_object_or_404(
-                Subscribe, username=user, author=author
+                Subscribe, user=user, author=author
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для тега."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для ингредиента."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (IngredientFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецепта."""
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = CustomPaginator
@@ -188,8 +192,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        methods=('post', 'delete',),
         detail=True,
+        methods=('post', 'delete',),
         serializer_class=ShoppingListSerializer,
         permission_classes=(IsAuthenticated,),
     )
