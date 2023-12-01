@@ -89,8 +89,8 @@ jobs:
           push: true
           tags: qtafy/foodgram_frontend:latest
 
-  build_gateway_and_push_to_docker_hub:
-    name: Push gateway Docker image to DockerHub
+  build_nginx_and_push_to_docker_hub:
+    name: Push nginx Docker image to DockerHub
     runs-on: ubuntu-latest
 
     steps:
@@ -109,7 +109,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v4
         with:
-          context: ./nginx/
+          context: ./infra/
           push: true
           tags: qtafy/foodgram_nginx:latest
 
