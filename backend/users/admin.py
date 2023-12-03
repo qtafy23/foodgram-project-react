@@ -5,17 +5,17 @@ from .models import Subscribe, User
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(UserAdmin):
     list_display = (
-        'username', 'pk', 'email', 'password', 'first_name', 'last_name',
+        'is_active', 'username',
+        'first_name', 'last_name', 'email',
     )
     fields = (
         ('is_active',),
         ('username', 'email',),
-        ('first_name', 'last_name', 'password'),
+        ('first_name', 'last_name',),
     )
-    required_fields = ('username', 'email',
-                       'first_name', 'last_name', 'password')
+    fieldsets = []
     search_fields = ('username', 'email',)
     list_filter = ('is_active', 'first_name', 'email',)
     save_on_top = True
