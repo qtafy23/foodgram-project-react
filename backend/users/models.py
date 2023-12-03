@@ -32,6 +32,7 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'password']
 
     class Meta:
         ordering = ('username',)
