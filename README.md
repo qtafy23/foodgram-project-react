@@ -15,20 +15,16 @@ git clone git@github.com:qtafy23/foodgram-project-react.git
 
 cd foodgram-project-react
 ```
-#### Установить докер, создать файлы .env и запустить проект в контейнере
+#### Установить докер, создать файл .env и запустить проект в контейнере
 
 Инструкция по установке: [Docker](https://docs.docker.com/installation/mac/)
 
 ```
-cd backend
-
-touch .env
-
 cd ../infra/
 
 touch .env
 ```
-Заполнить файлы данными из файла env.example
+Заполнить файл данными из файла env.example
 ```
 docker compose up
 ```
