@@ -26,7 +26,7 @@ from .serializers import (
     SubscribeSerializer
 )
 from .filters import RecipeFilter, IngredientFilter
-from .paginations import LimitPageNumberPaginator, CustomPaginator
+from .paginations import CustomPaginator
 from .utils import create_shoping_list
 from .mixins import (
     CreateListRetrieveViewSetMixin,
@@ -198,7 +198,6 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_404_NOT_FOUND)
-
 
     @action(
         detail=True,
