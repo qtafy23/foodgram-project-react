@@ -1,15 +1,37 @@
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from .validators import validate_username
 
 
 class User(AbstractUser):
     """Модель пользователя."""
+
     email = models.EmailField(
         max_length=254,
         unique=True
     )
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username', 'first_name', 'last_name', 'password')
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        validators=[validate_username, ]
+    )
+    first_name = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
+    last_name = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
+    password = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
 
     class Meta:
         ordering = ('username',)

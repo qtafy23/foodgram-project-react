@@ -37,6 +37,7 @@ class UserReadSerializer(UserSerializer):
 
 class UserCreateSerializer(UserCreateSerializer):
     """Сериализатор для создания нового пользователя."""
+
     class Meta:
         model = User
         fields = (
@@ -47,20 +48,6 @@ class UserCreateSerializer(UserCreateSerializer):
             'last_name',
             'password'
         )
-        extra_kwargs = {
-            'first_name': {'required': True, 'allow_blank': False},
-            'last_name': {'required': True, 'allow_blank': False},
-            'email': {'required': True, 'allow_blank': False},
-        }
-
-    def validate(self, obj):
-        invalid_usernames = ['me', 'set_password',
-                             'subscriptions', 'subscribe']
-        if self.initial_data.get('username') in invalid_usernames:
-            raise serializers.ValidationError(
-                {'username': 'Этот username уже занят.'}
-            )
-        return obj
 
 
 class SetPasswordSerializer(serializers.Serializer):
