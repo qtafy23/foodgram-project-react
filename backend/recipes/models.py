@@ -1,11 +1,13 @@
 from django.db import models
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import (MinValueValidator, MaxValueValidator,
+                                    RegexValidator)
 
 from users.models import User
 
 
 class Tag(models.Model):
     """Модель тега."""
+
     name = models.CharField(
         "Название",
         max_length=200,
@@ -39,6 +41,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     """Модель ингредиента."""
+
     name = models.CharField(
         "Название",
         max_length=200,
@@ -90,12 +93,16 @@ class Recipe(models.Model):
     text = models.TextField(
         "Описание"
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         "Время приготовления",
         validators=[
             MinValueValidator(
                 1,
                 message='Время приготовления должно быть больше 1 минуты!'
+            ),
+            MaxValueValidator(
+                720,
+                message='Время приготовления должно быть меньше 720 минут!'
             )
         ],
         help_text='Время приготовления в минутах!'
@@ -129,15 +136,26 @@ class RecipeIngredient(models.Model):
     """Модель для связи рецепта и ингредиента."""
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='recipe_ingredients'
     )
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='recipe_ingredients'
     )
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         "Количество",
-        validators=[MinValueValidator(1)]
+        validators=[
+            MinValueValidator(
+                1,
+                message='Количество должно быть больше 1!'
+            ),
+            MaxValueValidator(
+                10000,
+                message='Количество должно быть меньше 10000!'
+            )
+        ]
     )
 
     class Meta:
@@ -152,15 +170,16 @@ class FavoriteList(models.Model):
     """Модель для добавления рецептов в избранное."""
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='favorites'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='favorites'
     )
 
     class Meta:
-        default_related_name = 'favorites'
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
 
@@ -172,15 +191,16 @@ class ShoppingList(models.Model):
     """Модель для добавления рецептов в корзину."""
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='shoppings'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='shoppings'
     )
 
     class Meta:
-        default_related_name = 'shoppings'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         constraints = [
