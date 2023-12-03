@@ -85,7 +85,6 @@ class UserViewSet(CreateListRetrieveViewSet):
         detail=False,
         serializer_class=SubscriptionSerializer,
         permission_classes=(IsAuthenticated,),
-        pagination_class=LimitPageNumberPaginator
     )
     def subscriptions(self, request):
         """Просмотр подписок пользователя."""

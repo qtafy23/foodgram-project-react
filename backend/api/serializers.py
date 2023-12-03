@@ -278,10 +278,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit_recipes = request.query_params.get('recipes_limit')
+        recipes = obj.recipes.all()
         if limit_recipes is not None:
-            recipes = obj.recipes.all()[:(int(limit_recipes))]
-        else:
-            recipes = obj.recipes.all()
+            recipes = recipes[:(int(limit_recipes))]
         context = {'request': request}
         return RecipeListSerializer(recipes, many=True,
                                     context=context).data
