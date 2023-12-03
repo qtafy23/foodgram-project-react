@@ -69,6 +69,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     """Модель рецепта."""
+
     tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
@@ -134,6 +135,7 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     """Модель для связи рецепта и ингредиента."""
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -168,6 +170,7 @@ class RecipeIngredient(models.Model):
 
 class FavoriteList(models.Model):
     """Модель для добавления рецептов в избранное."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -189,6 +192,7 @@ class FavoriteList(models.Model):
 
 class ShoppingList(models.Model):
     """Модель для добавления рецептов в корзину."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -53,7 +53,6 @@ class UserViewSet(CreateListRetrieveViewSet):
     )
     def me(self, request):
         """Информация о своем аккаунте."""
-
         serializer = UserReadSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -65,7 +64,6 @@ class UserViewSet(CreateListRetrieveViewSet):
     )
     def set_password(self, request):
         """Страница смены пароля."""
-
         user = request.user
         serializer = self.get_serializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -91,7 +89,6 @@ class UserViewSet(CreateListRetrieveViewSet):
     )
     def subscriptions(self, request):
         """Просмотр подписок пользователя."""
-
         user = request.user
         subscriptions = user.subscriber.all()
         users_id = subscriptions.values_list('author_id', flat=True)
@@ -130,12 +127,14 @@ class UserViewSet(CreateListRetrieveViewSet):
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для тега."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для ингредиента."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -144,6 +143,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецепта."""
+
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -200,7 +200,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk=None):
         """Добавление/удаление рецепта из корзины."""
-
         if self.request.method == 'POST':
             return self.add_recipe_to_cart(request, pk)
         elif self.request.method == 'DELETE':
