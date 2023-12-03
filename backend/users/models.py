@@ -19,20 +19,13 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         max_length=150,
-        blank=True,
-        null=True
     )
     last_name = models.CharField(
         max_length=150,
-        blank=True,
-        null=True
     )
     password = models.CharField(
         max_length=150,
-        blank=True,
-        null=True
     )
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'password']
 
     class Meta:
         ordering = ('username',)
@@ -45,6 +38,7 @@ class User(AbstractUser):
 
 class Subscribe(models.Model):
     """Модель подписки."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -58,15 +52,15 @@ class Subscribe(models.Model):
         verbose_name='Подписан'
     )
 
-    def __str__(self):
-        return f'{self.user.username} - {self.author.username}'
-
     class Meta:
         verbose_name = 'Подписка на автора'
         verbose_name_plural = 'Подписки на авторов'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='unique_subscribe'
+                name='uq_user_author'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user.username} - {self.author.username}'

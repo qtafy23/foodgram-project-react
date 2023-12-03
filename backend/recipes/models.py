@@ -56,7 +56,7 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
-                name='unique_name_measurement_unit'
+                name='uq_name_measurement_unit'
             )
         ]
 
@@ -117,7 +117,7 @@ class Recipe(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['text', 'author'],
-                name='unique_text_author'
+                name='uq_text_author'
             )
         ]
 
@@ -186,7 +186,7 @@ class ShoppingList(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
-                name='unique_recipe'
+                name='uq_user_recipe'
             ),
         ]
 
