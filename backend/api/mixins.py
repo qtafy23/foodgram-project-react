@@ -20,11 +20,23 @@ class MultiSerializerViewSetMixin:
             return super().get_serializer_class()
 
 
-class CreateListRetrieveViewSet(
+class CreateListRetrieveViewSetMixin(
     MultiSerializerViewSetMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
+    pass
+
+
+class ModelMultiSerializerViewSetMixin(
+    MultiSerializerViewSetMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
     viewsets.GenericViewSet
 ):
     pass

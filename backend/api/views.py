@@ -28,23 +28,26 @@ from .serializers import (
 from .filters import RecipeFilter, IngredientFilter
 from .paginations import LimitPageNumberPaginator, CustomPaginator
 from .utils import create_shoping_list
-from .mixins import CreateListRetrieveViewSet
+from .mixins import (
+    CreateListRetrieveViewSetMixin,
+    ModelMultiSerializerViewSetMixin
+)
 from .permissions import IsAuthorOrReadOnly
 
 
-class UserViewSet(CreateListRetrieveViewSet):
+class UserViewSet(CreateListRetrieveViewSetMixin):
+    """Вьюсет для работы с пользователями."""
+
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     pagination_class = CustomPaginator
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return UserReadSerializer
-        elif self.action == 'set_password':
-            return SetPasswordSerializer
-        elif self.action == 'subscribe':
-            return SubscribeSerializer
-        return UserCreateSerializer
+    serializer_class = UserCreateSerializer
+    serializer_classes = {
+        'list': UserReadSerializer,
+        'retrieve': UserReadSerializer,
+        'set_password': SetPasswordSerializer,
+        'subscribe': SubscribeSerializer,
+    }
 
     @action(
         detail=False,
@@ -143,7 +146,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = IngredientFilter
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(ModelMultiSerializerViewSetMixin):
     """Вьюсет для рецепта."""
 
     queryset = Recipe.objects.select_related('author')
@@ -151,18 +154,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = CustomPaginator
+    serializer_class = RecipeCreateSerializer
+    serializer_classes = {
+        'list': RecipeSerializer,
+        'retrieve': RecipeSerializer,
+        'favorite': FavoriteListSerializer,
+        'shopping_cart': ShoppingListSerializer,
+    }
 
     def get_queryset(self):
         return Recipe.objects.prefetch_related('ingredients', 'tags')
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return RecipeSerializer
-        elif self.action == 'favorite':
-            return FavoriteListSerializer
-        elif self.action == 'shopping_cart':
-            return ShoppingListSerializer
-        return RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
