@@ -26,3 +26,9 @@ class SubscribeAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'author')
     list_editable = ('user', 'author')
     empty_value_display = '-пусто-'
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related(
+            'user'
+        ).prefetch_related('author')
