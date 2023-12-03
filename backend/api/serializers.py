@@ -149,7 +149,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = UserReadSerializer(read_only=True)
     tags = TagSerializer(many=True)
     ingredients = RecipeIngredientSerializer(
-        many=True, source='recipeingredient_set'
+        many=True, source='recipe_ingredients'
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -251,7 +251,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
-    recipes_count = serializers.ReadOnlyField(source='recipes_count')
+    recipes_count = serializers.ReadOnlyField(source='recipes.count')
 
     class Meta:
         model = User

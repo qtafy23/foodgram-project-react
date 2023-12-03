@@ -119,10 +119,13 @@ class UserViewSet(CreateListRetrieveViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            get_object_or_404(
-                Subscribe, user=user, author=author
-            ).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            obj = Subscribe.objects.filter(
+                user=user, author=author
+            )
+            if obj.exists():
+                obj.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -144,11 +147,14 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецепта."""
 
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.select_related('author')
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = CustomPaginator
+
+    def get_queryset(self):
+        return Recipe.objects.prefetch_related('ingredients', 'tags')
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -185,12 +191,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @favorite.mapping.delete
     def destroy_favorite(self, request, pk):
         """Удаление рецепта из избранного."""
-        get_object_or_404(
-            FavoriteList,
-            user=request.user,
-            recipe=get_object_or_404(Recipe, id=pk)
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        obj = FavoriteList.objects.filter(
+            user=request.user, recipe__id=pk
+        )
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
 
     @action(
         detail=True,
@@ -219,15 +227,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     def remove_recipe_from_cart(self, request, pk):
-        get_object_or_404(
-            ShoppingList,
-            user=self.request.user,
-            recipe=get_object_or_404(Recipe, pk=pk)
-        ).delete()
-        return Response(
-            {'message': 'Рецепт успешно удален из списка покупок'},
-            status=status.HTTP_204_NO_CONTENT
+        obj = ShoppingList.objects.filter(
+            user=self.request.user, recipe__id=pk
         )
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
         detail=False,
