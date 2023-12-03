@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'YOUR developing key')
 
 DEBUG = env.bool('DEBUG_PROD', default=False)
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
 
 AUTH_USER_MODEL = 'users.User'
 
