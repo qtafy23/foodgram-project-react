@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'YOUR developing key')
 
 DEBUG = env.bool('DEBUG_PROD', default=False)
 
-ALLOWED_HOSTS = ['158.160.74.51', '127.0.0.1', 'localhost', 'foodgram.gotdns.ch']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(',')
 
 AUTH_USER_MODEL = 'users.User'
 
