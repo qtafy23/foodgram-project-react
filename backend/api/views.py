@@ -171,7 +171,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         """Добавление рецепта в избранное."""
-        context = {"request": request}
+        context = {'request': request}
         recipe = get_object_or_404(Recipe, id=pk)
         data = {
             'user': request.user.id,
@@ -239,7 +239,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Скачивание списка покупок."""
         shopping_cart = ShoppingList.objects.filter(user=self.request.user)
         buy_list_text = create_shoping_list(shopping_cart)
-        response = HttpResponse(buy_list_text, content_type="text/plain")
+        response = HttpResponse(buy_list_text, content_type='text/plain')
         response['Content-Disposition'] = (
             'attachment; filename=shopping-list.txt'
         )

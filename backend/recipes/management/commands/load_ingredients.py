@@ -1,9 +1,10 @@
 import csv
 import os
-from foodgram import settings
 
 from django.core.management.base import BaseCommand
 from progress.bar import IncrementalBar
+
+from foodgram import settings
 from recipes.models import Ingredient
 
 
@@ -29,4 +30,4 @@ class Command(BaseCommand):
                 bar.next()
                 ingredient_create(row)
             bar.finish()
-        self.stdout.write("[!] The ingredients has been loaded successfully.")
+        self.stdout.write('[!] The ingredients has been loaded successfully.')
