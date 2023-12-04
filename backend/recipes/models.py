@@ -9,13 +9,11 @@ class Tag(models.Model):
     """Модель тега."""
 
     name = models.CharField(
-        "Название",
         max_length=200,
         unique=True,
         verbose_name='Название тега'
     )
     color = models.CharField(
-        "Цвет",
         max_length=7,
         null=True,
         validators=[
@@ -27,7 +25,6 @@ class Tag(models.Model):
         verbose_name='Цвет тега'
     )
     slug = models.SlugField(
-        "Слаг",
         max_length=200,
         unique=True,
         verbose_name='Слаг тега'
@@ -46,13 +43,11 @@ class Ingredient(models.Model):
     """Модель ингредиента."""
 
     name = models.CharField(
-        "Название",
         max_length=200,
         db_index=True,
         verbose_name='Название ингредиента'
     )
     measurement_unit = models.CharField(
-        "Еденица измерения",
         max_length=200,
         verbose_name='Еденица измерения'
     )
@@ -96,16 +91,13 @@ class Recipe(models.Model):
         help_text='Выберите ингредиенты'
     )
     name = models.CharField(
-        "Название",
         max_length=200,
         verbose_name='Название рецепта'
     )
     text = models.TextField(
-        "Описание",
         verbose_name='Описание рецепта'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        "Время приготовления",
         validators=[
             MinValueValidator(
                 1,
@@ -120,12 +112,10 @@ class Recipe(models.Model):
         help_text='Время приготовления в минутах!'
     )
     pub_date = models.DateTimeField(
-        "Дата публикации",
         auto_now_add=True,
         verbose_name='Дата публикации'
     )
     image = models.ImageField(
-        "Изображение",
         upload_to='media/',
         help_text='Прикрепите изображение',
         verbose_name='Изображение рецепта'
@@ -162,7 +152,6 @@ class RecipeIngredient(models.Model):
         verbose_name='Рецепт'
     )
     amount = models.PositiveSmallIntegerField(
-        "Количество",
         validators=[
             MinValueValidator(
                 1,
