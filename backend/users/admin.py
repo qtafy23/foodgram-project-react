@@ -1,11 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import Subscribe, User
 
 
 @admin.register(User)
-class UserAdmin(UserAdmin):
+class UserAdmin(BaseUserAdmin):
     list_display = (
         'is_active', 'username',
         'first_name', 'last_name', 'email',
@@ -30,5 +30,5 @@ class SubscribeAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related(
-            'user'
-        ).prefetch_related('author')
+            'user', 'author'
+        )
