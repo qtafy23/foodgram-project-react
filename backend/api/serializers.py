@@ -285,10 +285,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return RecipeListSerializer(recipes, many=True,
                                     context=context).data
 
-    @staticmethod
-    def get_recipes_count(obj):
-        return obj.recipes.count()
-
 
 class SubscribeSerializer(serializers.Serializer):
     """Добавление и удаление подписок пользователя."""
