@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 from rest_framework import viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -92,7 +93,9 @@ class UserViewSet(CreateListRetrieveViewSetMixin):
     def subscriptions(self, request):
         """Просмотр подписок пользователя."""
         paginated_queryset = self.paginate_queryset(
-            User.objects.filter(subscribing__user=self.request.user),
+            User.objects.filter(
+                subscribing__user=self.request.user
+            ).annotate(recipes_count=Count('recipes'))
         )
         serializer = self.serializer_class(
             paginated_queryset,
@@ -121,11 +124,13 @@ class UserViewSet(CreateListRetrieveViewSetMixin):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            try:
-                Subscribe.objects.get(user=user, author=author).delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            except Subscribe.DoesNotExist:
+            deleted_tuple = Subscribe.objects.filter(
+                user=user, author=author
+            ).delete()
+            if deleted_tuple[0] == 0:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -188,11 +193,12 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
     @favorite.mapping.delete
     def destroy_favorite(self, request, pk):
         """Удаление рецепта из избранного."""
-        try:
-            FavoriteList.objects.get(user=request.user, recipe=pk).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except FavoriteList.DoesNotExist:
+        deleted_tuple = FavoriteList.objects.filter(
+            user=request.user, recipe=pk
+        ).delete()
+        if deleted_tuple[0] == 0:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=True,
@@ -221,11 +227,7 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
         )
 
     def remove_recipe_from_cart(self, request, pk):
-        try:
-            ShoppingList.objects.get(user=request.user, recipe=pk).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except ShoppingList.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        ShoppingList.objects.filter(user=request.user, recipe=pk).delete()
 
     @action(
         detail=False,

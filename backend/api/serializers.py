@@ -251,7 +251,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
-    recipes_count = serializers.ReadOnlyField(source='recipes.count')
+    recipes_count = serializers.ReadOnlyField()
 
     class Meta:
         model = User
