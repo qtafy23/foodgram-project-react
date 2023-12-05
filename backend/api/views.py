@@ -121,13 +121,11 @@ class UserViewSet(CreateListRetrieveViewSetMixin):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            obj = Subscribe.objects.filter(
-                user=user, author=author
-            )
-            if obj.exists():
-                obj.delete()
+            try:
+                Subscribe.objects.get(user=user, author=author).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            except Subscribe.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -190,13 +188,11 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
     @favorite.mapping.delete
     def destroy_favorite(self, request, pk):
         """Удаление рецепта из избранного."""
-        obj = FavoriteList.objects.filter(
-            user=request.user, recipe__id=pk
-        )
-        if obj.exists():
-            obj.delete()
+        try:
+            FavoriteList.objects.get(user=request.user, recipe=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        except FavoriteList.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
         detail=True,
@@ -225,13 +221,11 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
         )
 
     def remove_recipe_from_cart(self, request, pk):
-        obj = ShoppingList.objects.filter(
-            user=self.request.user, recipe__id=pk
-        )
-        if obj.exists():
-            obj.delete()
+        try:
+            ShoppingList.objects.get(user=request.user, recipe=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        except ShoppingList.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
         detail=False,
