@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Type
-from rest_framework import mixins, viewsets
 
+from rest_framework import mixins, viewsets
 
 if TYPE_CHECKING:
     from rest_framework.serializers import Serializer

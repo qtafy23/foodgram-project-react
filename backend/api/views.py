@@ -1,39 +1,26 @@
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
-from rest_framework import viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import FavoriteList, Ingredient, Recipe, ShoppingList, Tag
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (
-    IsAuthenticated,
-    AllowAny,
-)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from recipes.models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    FavoriteList,
-    ShoppingList
-)
 from users.models import Subscribe, User
-from .serializers import (
-    TagSerializer, IngredientSerializer,
-    RecipeSerializer, RecipeCreateSerializer,
-    FavoriteListSerializer, ShoppingListSerializer,
-    UserReadSerializer, UserCreateSerializer,
-    SetPasswordSerializer, SubscriptionSerializer,
-    SubscribeSerializer
-)
-from .filters import RecipeFilter, IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
+from .mixins import (CreateListRetrieveViewSetMixin,
+                     ModelMultiSerializerViewSetMixin)
 from .paginations import CustomPaginator
-from .utils import create_shoping_list
-from .mixins import (
-    CreateListRetrieveViewSetMixin,
-    ModelMultiSerializerViewSetMixin
-)
 from .permissions import IsAuthorOrReadOnly
+from .serializers import (FavoriteListSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeSerializer,
+                          SetPasswordSerializer, ShoppingListSerializer,
+                          SubscribeSerializer, SubscriptionSerializer,
+                          TagSerializer, UserCreateSerializer,
+                          UserReadSerializer)
+from .utils import create_shoping_list
 
 
 class UserViewSet(CreateListRetrieveViewSetMixin):
@@ -130,7 +117,6 @@ class UserViewSet(CreateListRetrieveViewSetMixin):
             if deleted_tuple[0] == 0:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
