@@ -91,14 +91,14 @@ class UserViewSet(CreateListRetrieveViewSetMixin):
     )
     def subscriptions(self, request):
         """Просмотр подписок пользователя."""
-        user = request.user
-        subscriptions = user.subscriber.all()
-        users_id = subscriptions.values_list('author_id', flat=True)
-        users = User.objects.filter(id__in=users_id)
-        paginated_queryset = self.paginate_queryset(users)
-        serializer = self.serializer_class(paginated_queryset,
-                                           context={'request': request},
-                                           many=True)
+        paginated_queryset = self.paginate_queryset(
+            User.objects.filter(subscribing__user=self.request.user),
+        )
+        serializer = self.serializer_class(
+            paginated_queryset,
+            context={'request': request},
+            many=True
+        )
         return self.get_paginated_response(serializer.data)
 
     @action(
@@ -149,7 +149,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(ModelMultiSerializerViewSetMixin):
     """Вьюсет для рецепта."""
 
-    queryset = Recipe.objects.select_related('author')
+    queryset = Recipe.objects.select_related(
+        'author'
+    ).prefetch_related('ingredients', 'tags')
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -161,9 +163,6 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
         'favorite': FavoriteListSerializer,
         'shopping_cart': ShoppingListSerializer,
     }
-
-    def get_queryset(self):
-        return Recipe.objects.prefetch_related('ingredients', 'tags')
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
