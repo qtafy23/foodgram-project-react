@@ -48,10 +48,3 @@ http://127.0.0.1/api/docs/
 
 ### Автор
 **Qtafy23**
-
-```
-ip: 158.160.74.51
-domen: https://foodgram.gotdns.ch/
-email: a@em.em
-password: a
-```
