@@ -1,13 +1,7 @@
 from django.contrib import admin
 
-from .models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    FavoriteList,
-    ShoppingList
-)
+from .models import (FavoriteList, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingList, Tag)
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -65,11 +59,11 @@ class FavoriteListAdmin(admin.ModelAdmin):
 @admin.register(ShoppingList)
 class ShoppingListAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')
-    list_display_links = ('user','recipe')
+    list_display_links = ('user', 'recipe',)
     search_fields = ('user__username', 'recipe__name')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related(
-            'recipe', 'user'
+            'recipe', 'user',
         )

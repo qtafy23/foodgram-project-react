@@ -2,13 +2,14 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import FavoriteList, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from recipes.models import FavoriteList, Ingredient, Recipe, ShoppingList, Tag
 from users.models import Subscribe, User
+
 from .filters import IngredientFilter, RecipeFilter
 from .mixins import (CreateListRetrieveViewSetMixin,
                      ModelMultiSerializerViewSetMixin)
@@ -213,7 +214,12 @@ class RecipeViewSet(ModelMultiSerializerViewSetMixin):
         )
 
     def remove_recipe_from_cart(self, request, pk):
-        ShoppingList.objects.filter(user=request.user, recipe=pk).delete()
+        deleted_tuple = ShoppingList.objects.filter(
+            user=request.user, recipe=pk
+        ).delete()
+        if deleted_tuple[0] == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
