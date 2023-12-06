@@ -26,17 +26,16 @@ class TagAdmin(admin.ModelAdmin):
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit',)
     search_fields = ('name',)
-    list_filter = ('name',)
     save_on_top = True
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author')
+    list_display_links = ('name', 'author')
     readonly_fields = ('added_in_favorites',)
     inlines = (RecipeIngredientInline,)
-    search_fields = ('name', 'author__username', 'tags__slug',)
-    list_filter = ('name', 'author__username', 'tags__slug')
+    search_fields = ('name',)
     save_on_top = True
 
     @admin.display(description='Количество в избранных')
@@ -53,6 +52,7 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(FavoriteList)
 class FavoriteListAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')
+    list_display_links = ('user', 'recipe')
     search_fields = ('user__username', 'recipe__name')
 
     def get_queryset(self, request):
@@ -65,6 +65,7 @@ class FavoriteListAdmin(admin.ModelAdmin):
 @admin.register(ShoppingList)
 class ShoppingListAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')
+    list_display_links = ('user','recipe')
     search_fields = ('user__username', 'recipe__name')
 
     def get_queryset(self, request):
